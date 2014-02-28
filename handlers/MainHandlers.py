@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, json
 
 from BaseHandler import BaseHandler
 from AuthHandlers import *
@@ -27,7 +27,7 @@ class AddPageHandler(BaseHandler):
             return self.redirect("/")
 
         return self.render("new.html",
-        	totalAmount = Expense.getTotal(),
+        	totalAmount = Expense.getTotalForUser(user),
         )
 
     def post(self):
@@ -35,16 +35,30 @@ class AddPageHandler(BaseHandler):
         if not user:
             return self.redirect("/")
 
-    	e = Expense()
+        e = Expense()
 
         if (self.request.get("amount").isdigit()):
+            e.userKey = user.key
             e.amount = int(self.request.get("amount"))
             e.category = self.request.get("category")
             e.description = self.request.get("description")
             e.put()
+
+            user.expenses.append(e.key)
+            user.put()
+
             time.sleep(0.1)
 
-        return self.response.write(Expense.getTotal())
+        info = {
+            'total': Expense.getTotalForUser(user),
+            'id': e.key.id(),
+            'amount': e.amount,
+            'category': e.category,
+            'description': e.description,
+        }
+
+        self.response.headers['Content-Type'] = 'application/json'
+        return self.response.write(json.dumps(info))
 
 #--------------------------------------------------------------
 class HistoryPageHandler(BaseHandler):
@@ -55,8 +69,32 @@ class HistoryPageHandler(BaseHandler):
             return self.redirect("/")
 
         return self.render("history.html",
-        	allExpenses = Expense.getAll(),
+        	allExpenses = Expense.getAllForUser(user),
         )
+#--------------------------------------------------------------
+class RemoveHandler(BaseHandler):
+
+    def post(self):
+        user = Authenticate(self.request)
+        if not user:
+            return self.redirect("/")
+
+        expense_id = int(self.request.get("id"))
+        e = Expense.get_by_id(expense_id)
+        u = e.userKey.get()
+        u.expenses.remove(e.key)
+        u.put()
+        e.key.delete()
+
+        time.sleep(0.1)
+
+        info = {
+            'total': Expense.getTotalForUser(user),
+            'id': self.request.get("id"),
+        }
+
+        self.response.headers['Content-Type'] = 'application/json'
+        return self.response.write(json.dumps(info))
 #--------------------------------------------------------------
 class SignupPageHandler(BaseHandler):
 

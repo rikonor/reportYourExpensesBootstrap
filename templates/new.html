@@ -73,8 +73,22 @@
             <label class="sr-only" for="Description">Description</label>
             <input type="text" class="form-control" name="description" id="description" placeholder="Description" autocomplete="off">
           </div>
-          <button type="submit" class="btn btn-default col-md-2 col-md-offset-5">Add</button>
+          <div class="form-group">
+            <button type="submit" class="from-control btn btn-default">Add</button>
+          </div>
         </form>
+
+        <div id="lastEntryDiv">
+          <table class="table">
+            <tr id="last_entry">
+              <td id="last_id"></td>
+              <td id="last_description"></td>
+              <td id="last_amount"></td>
+              <td id="last_category"></td>
+              <td id="last_undo"><button type="submit" class="from-control btn btn-default">Undo</button></td>
+            </tr>
+          </table>
+        </div>
 
       </div>
 

@@ -8,6 +8,8 @@ class User(ndb.Model):
 	pw_hash = ndb.StringProperty(required = True)
 	created = ndb.DateTimeProperty(auto_now_add = True)
 	
+	expenses = ndb.KeyProperty(kind='Expense', repeated=True)
+
 #-----------------------------------------------------------------------------------
 
 class Expense(ndb.Model):
@@ -15,12 +17,13 @@ class Expense(ndb.Model):
 	amount 	 = ndb.IntegerProperty(required = True)
 	category = ndb.StringProperty(required = True, default="General")
 	description = ndb.StringProperty(default="")
+	userKey = ndb.KeyProperty(kind='User')
 	created = ndb.DateTimeProperty(auto_now_add = True)
 
 	@staticmethod
-	def getTotal():
-		return sum([expense.amount for expense in Expense.query().fetch()])
+	def getTotalForUser(user):
+		return sum([expense.amount for expense in Expense.query(Expense.userKey==user.key).fetch()])
 
 	@staticmethod
-	def getAll():
-		return Expense.query().order(-Expense.created).fetch()
+	def getAllForUser(user):
+		return Expense.query(Expense.userKey==user.key).order(-Expense.created).fetch()
