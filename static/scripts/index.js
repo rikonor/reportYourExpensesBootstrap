@@ -1,4 +1,6 @@
 $(document).ready(function() {
+
+    // On Submit
     $("#newForm").submit(function(ev) {
         ev.preventDefault();
         // Submit the form, get back the total amount
@@ -6,6 +8,7 @@ $(document).ready(function() {
         // Set a little message
         data = $("#newForm").serialize();
         $("#newForm")[0].reset();
+        $("#tagsInput").tagsinput('removeAll');
 
         $.ajax({
             type: "POST",
@@ -22,6 +25,7 @@ $(document).ready(function() {
         });
     });
 
+    // On Undo
     $("#last_undo button").click(function(ev) {
         ev.preventDefault();
 

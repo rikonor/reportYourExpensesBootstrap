@@ -37,17 +37,29 @@ class AddPageHandler(BaseHandler):
 
         e = Expense()
 
-        if (self.request.get("amount").isdigit()):
-            e.userKey = user.key
-            e.amount = int(self.request.get("amount"))
-            e.category = self.request.get("category")
-            e.description = self.request.get("description")
-            e.put()
+        if not self.request.get("amount").isdigit():
+            return
 
-            user.expenses.append(e.key)
-            user.put()
+        # Passed
+        e.userKey     = user.key
+        e.amount      = int(self.request.get("amount"))
+        e.category    = self.request.get("category")
+        e.description = self.request.get("description")
+        e.tags        = self.request.get("tagsInput").split(",")
+        e.put()
 
-            time.sleep(0.1)
+        user.expenses.append(e.key)
+        user.put()
+
+        tags = self.request.get("tagsInput").split(",")
+        for tag in tags:
+            t = Tag.query(ndb.AND(Tag.name==tag, Tag.userKey==user.key)).get()
+            if not t:
+                t = Tag(userKey=user.key, name=tag)
+            t.expenses.append(e.key)
+            t.put()
+
+        time.sleep(0.1)
 
         info = {
             'total': Expense.getTotalForUser(user),
@@ -71,6 +83,41 @@ class HistoryPageHandler(BaseHandler):
         return self.render("history.html",
         	allExpenses = Expense.getAllForUser(user),
         )
+#--------------------------------------------------------------
+class JsonExpensesByTags(BaseHandler):
+
+    def get(self):
+        user = Authenticate(self.request)
+        if not user:
+            return self.redirect("/")
+
+        tagNames = self.request.get("tagsInput")
+
+        expenses = Expense.getAllForUser(user)
+        passedExpenses = []
+
+        if tagNames:
+            tagNames = tagNames.split(",")
+            for expense in expenses:
+                print "\nExpense:", expense.tags
+                if set(tagNames).issubset(set(expense.tags)):
+                    passedExpenses.append(expense)
+            #expenses = [expense for expense in expenses if set(tagNames).issubset(set(expense.tags))]
+        else:
+            passedExpenses = expenses
+
+        info = []
+        for e in passedExpenses:
+            info.append({
+                'created': e.created.strftime("%D"),
+                'amount': e.amount,
+                'category': e.category,
+                'description': e.description,
+                'tags': e.tags,
+            })
+
+        self.response.headers['Content-Type'] = 'application/json'
+        return self.response.write(json.dumps(info))                
 #--------------------------------------------------------------
 class RemoveHandler(BaseHandler):
 

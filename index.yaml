@@ -15,3 +15,10 @@ indexes:
   - name: userKey
   - name: created
     direction: desc
+
+- kind: Expense
+  properties:
+  - name: userKey
+  - name: created
+    direction: desc
+  - name: amount

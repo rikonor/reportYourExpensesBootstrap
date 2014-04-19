@@ -8,8 +8,10 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 
-    <link rel="stylesheet" href="../stylesheets/base.css" />
-    <link rel="stylesheet" href="../stylesheets/index.css" />
+    <link rel="stylesheet" href="/stylesheets/bootstrap-tagsinput.css" />
+
+    <link rel="stylesheet" href="/stylesheets/base.css" />
+    <link rel="stylesheet" href="/stylesheets/index.css" />
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -54,30 +56,48 @@
 
       <div id="newFormDiv">
         <form role="form" name="newForm" id="newForm" action="/new" method="POST">
+          
+          <!-- GENERAL INFO -->
+          <fieldset>
+            <div class="form-group">
+              <label class="sr-only" for="amount">Amount</label>
+              <input type="text" class="form-control" name="amount" id="amount" placeholder="Amount" autocomplete="off">
+            </div>
+
+            <!-- CATEGORY -->
+            <div class="form-group">
+              <label class="sr-only" for="category">Category</label>
+              <select class="form-control" name="category">
+                <option value="Groceries">Groceries</option>
+                <option value="Bills">Bills</option>
+                <option value="Bus">Bus</option>
+                <option value="Going Out">Going Out</option>
+                <option value="Rent">Rent</option>
+                <option value="Misc.">Misc.</option>
+              </select>
+            </div>
+            
+            <!-- DESCRIPTION -->
+            <div class="form-group">
+              <label class="sr-only" for="description">Description</label>
+              <input type="text" class="form-control" name="description" id="description" placeholder="Description" autocomplete="off">
+            </div>
+
+            <!-- TAGS -->
+            <div class="form-group">
+              <label class="sr-only" for="tagsInput">Tags Input</label>
+              <input type="text" data-role="tagsinput" class="form-control" name="tagsInput" id="tagsInput" placeholder="Enter tags" autocomplete="off">
+            </div>
+          </fieldset>
+
+          <!-- SUBMIT -->
           <div class="form-group">
-            <label class="sr-only" for="amount">Amount</label>
-            <input type="text" class="form-control" name="amount" id="amount" placeholder="Amount" autocomplete="off">
+            <button type="submit" class="from-control btn btn-default">Submit</button>
           </div>
-          <div class="form-group">
-            <label class="sr-only" for="Description">Description</label>
-            <select class="form-control" name="category">
-              <option value="Groceries">Groceries</option>
-              <option value="Bills">Bills</option>
-              <option value="Bus">Bus</option>
-              <option value="Going Out">Going Out</option>
-              <option value="Rent">Rent</option>
-              <option value="Misc.">Misc.</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="sr-only" for="Description">Description</label>
-            <input type="text" class="form-control" name="description" id="description" placeholder="Description" autocomplete="off">
-          </div>
-          <div class="form-group">
-            <button type="submit" class="from-control btn btn-default">Add</button>
-          </div>
+
         </form>
 
+        <!-- LAST ENTRY and UNDO -->
         <div id="lastEntryDiv">
           <table class="table">
             <tr id="last_entry">
@@ -99,6 +119,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src='/scripts/index.js'></script>
+    <script src='/scripts/bootstrap-tagsinput.js'></script>
   </body>
 </html>
 {% endautoescape %}
