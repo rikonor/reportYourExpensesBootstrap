@@ -76,6 +76,7 @@
             <td>{{expense.amount}}</td>
             <td>{{expense.category}}</td>
             <td>{% for tag in expense.tags %}<a href="/byTag?tag={{tag}}">{{tag}}</a>{% endfor %}</td>
+            <td><a href="/edit?id={{expense.key.id()}}">Edit</a></td>
           </tr>
           {% endfor %}
         </tbody>

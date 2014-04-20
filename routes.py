@@ -13,5 +13,6 @@ route_list = [
 	('/new', AddPageHandler),
 	('/history', HistoryPageHandler),
 	('/JsonExpensesByTags', JsonExpensesByTags),
+	('/edit', EditPageHandler),
 	('/remove', RemoveHandler),
 	]

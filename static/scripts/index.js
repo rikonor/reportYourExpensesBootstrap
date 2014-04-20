@@ -1,5 +1,13 @@
 $(document).ready(function() {
 
+    setInitialTags();
+
+    function setInitialTags() {
+        tags = $("#initialTags").find("span").each(function() {
+            $("#tagsInput").tagsinput('add', $(this).text());
+        });
+    }
+
     // On Submit
     $("#newForm").submit(function(ev) {
         ev.preventDefault();

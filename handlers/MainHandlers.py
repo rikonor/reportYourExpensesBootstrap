@@ -1,4 +1,4 @@
-import os, sys, json
+import os, sys, json, datetime
 
 from BaseHandler import BaseHandler
 from AuthHandlers import *
@@ -26,8 +26,12 @@ class AddPageHandler(BaseHandler):
         if not user:
             return self.redirect("/")
 
+        year, month = datetime.datetime.now().strftime("%Y,%B").split(",")
+        initialTags = [year, month]
+
         return self.render("new.html",
         	totalAmount = Expense.getTotalForUser(user),
+            initialTags = initialTags,
         )
 
     def post(self):
@@ -117,7 +121,48 @@ class JsonExpensesByTags(BaseHandler):
             })
 
         self.response.headers['Content-Type'] = 'application/json'
-        return self.response.write(json.dumps(info))                
+        return self.response.write(json.dumps(info))           
+#--------------------------------------------------------------
+class EditPageHandler(BaseHandler):
+
+    def get(self):
+        user = Authenticate(self.request)
+        if not user:
+            return self.redirect("/")
+
+        expense_id = int(self.request.get("id"))
+        e = Expense.get_by_id(expense_id)
+
+        return self.render("edit.html", e = e,)
+
+    def post(self):
+        user = Authenticate(self.request)
+        if not user:
+            return self.redirect("/")
+
+        if not self.request.get("amount").isdigit():
+            return
+
+        expense_id = int(self.request.get("id"))
+        e = Expense.get_by_id(expense_id)
+        
+        e.amount      = int(self.request.get("amount"))
+        e.category    = self.request.get("category")
+        e.description = self.request.get("description")
+        e.tags        = self.request.get("tagsInput").split(",")
+        e.put()
+        
+        time.sleep(0.1)
+
+        info = {
+            'message': 'success',
+            'amount': e.amount,
+            'category': e.category,
+            'description': e.description,
+        }
+
+        self.response.headers['Content-Type'] = 'application/json'
+        return self.response.write(json.dumps(info))
 #--------------------------------------------------------------
 class RemoveHandler(BaseHandler):
 
@@ -136,6 +181,7 @@ class RemoveHandler(BaseHandler):
         time.sleep(0.1)
 
         info = {
+            'message': 'success',
             'total': Expense.getTotalForUser(user),
             'id': self.request.get("id"),
         }
