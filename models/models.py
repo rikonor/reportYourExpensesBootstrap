@@ -20,6 +20,10 @@ class Expense(ndb.Model):
 	created = ndb.DateTimeProperty(auto_now_add = True)
 
 	@staticmethod
+	def sumExpenses(expenses):
+		return sum([expense.amount for expense in expenses])
+
+	@staticmethod
 	def getTotalForUser(user):
 		return sum([expense.amount for expense in Expense.query(Expense.userKey==user.key).fetch()])
 

@@ -23,7 +23,7 @@ $(document).ready(function() {
             url: "new",
             data: data,
             success: function(data) {
-              $("#totalAmount").text("Total is " + data['total']);
+              $("#totalSum").text(data['total']);
               $("#last_id").text(data["id"]);
               $("#last_description").text(data['description']);
               $("#last_amount").text(data['amount']);

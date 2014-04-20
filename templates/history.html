@@ -52,7 +52,8 @@
 
     <div class="container">
 
-      <h1>All expenses</h1>
+      <h1 id="totalAmount">Expense History - Total is (&#8362; <span id="totalSum">{{totalSum}}</span>)</h1>
+
       <div class="form-group">
         <label class="sr-only" for="tagsInput">Tags Input</label>
         <input type="text" data-role="tagsinput" class="form-control" name="tagsInput" id="tagsInput" placeholder="Search tags" autocomplete="off">
@@ -75,7 +76,7 @@
             <td>{{expense.description}}</td>
             <td>{{expense.amount}}</td>
             <td>{{expense.category}}</td>
-            <td>{% for tag in expense.tags %}<a href="/byTag?tag={{tag}}">{{tag}}</a>{% endfor %}</td>
+            <td>{% for tag in expense.tags %}<a class="tagButton">{{tag}}</a>{% endfor %}</td>
             <td><a href="/edit?id={{expense.key.id()}}">Edit</a></td>
           </tr>
           {% endfor %}

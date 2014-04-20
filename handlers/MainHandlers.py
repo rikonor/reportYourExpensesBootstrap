@@ -29,8 +29,19 @@ class AddPageHandler(BaseHandler):
         year, month = datetime.datetime.now().strftime("%Y,%B").split(",")
         initialTags = [year, month]
 
+        #Get Total for current month
+        expenses = Expense.getAllForUser(user)
+        passedExpenses = []
+        for expense in expenses:
+            if set(initialTags).issubset(set(expense.tags)):
+                passedExpenses.append(expense)
+        currentMonthSum = Expense.sumExpenses(passedExpenses)
+
+        # Render Add (Main) Page
         return self.render("new.html",
-        	totalAmount = Expense.getTotalForUser(user),
+            month = month,
+            year = year,
+        	totalAmount = currentMonthSum,
             initialTags = initialTags,
         )
 
@@ -85,6 +96,7 @@ class HistoryPageHandler(BaseHandler):
             return self.redirect("/")
 
         return self.render("history.html",
+            totalSum = Expense.getTotalForUser(user),
         	allExpenses = Expense.getAllForUser(user),
         )
 #--------------------------------------------------------------
@@ -103,16 +115,15 @@ class JsonExpensesByTags(BaseHandler):
         if tagNames:
             tagNames = tagNames.split(",")
             for expense in expenses:
-                print "\nExpense:", expense.tags
                 if set(tagNames).issubset(set(expense.tags)):
                     passedExpenses.append(expense)
-            #expenses = [expense for expense in expenses if set(tagNames).issubset(set(expense.tags))]
         else:
             passedExpenses = expenses
 
         info = []
         for e in passedExpenses:
             info.append({
+                'id': e.key.id(),
                 'created': e.created.strftime("%D"),
                 'amount': e.amount,
                 'category': e.category,
