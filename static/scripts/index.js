@@ -17,6 +17,7 @@ $(document).ready(function() {
         data = $("#newForm").serialize();
         $("#newForm")[0].reset();
         $("#tagsInput").tagsinput('removeAll');
+        setInitialTags();
 
         $.ajax({
             type: "POST",
