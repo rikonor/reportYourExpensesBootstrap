@@ -202,9 +202,20 @@ class RemoveHandler(BaseHandler):
 
         time.sleep(0.1)
 
+        year, month = datetime.datetime.now().strftime("%Y,%B").split(",")
+        initialTags = [year, month]
+
+        #Get Total for current month
+        expenses = Expense.getAllForUser(user)
+        passedExpenses = []
+        for expense in expenses:
+            if set(initialTags).issubset(set(expense.tags)):
+                passedExpenses.append(expense)
+        currentMonthSum = Expense.sumExpenses(passedExpenses)
+
         info = {
             'message': 'success',
-            'total': Expense.getTotalForUser(user),
+            'total': currentMonthSum,
             'id': self.request.get("id"),
         }
 

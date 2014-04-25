@@ -46,7 +46,7 @@ $(document).ready(function() {
             data: data,
             success: function(data) {
                 $("#lastEntryDiv").fadeOut(300, function() {
-                    $("#totalAmount").text("Total is " + data['total']);
+                    $("#totalSum").text(data['total']);
                     $("#last_description").text("");
                     $("#last_amount").text("");
                     $("#last_category").text("");
