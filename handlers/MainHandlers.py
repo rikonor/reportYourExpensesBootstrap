@@ -8,6 +8,13 @@ from security import hashes
 from google.appengine.api.images import get_serving_url
 
 #--------------------------------------------------------------
+# Aux functions
+#--------------------------------------------------------------
+def getCurrentMonthTags():
+    year, month = datetime.datetime.now().strftime("%Y,%B").split(",")
+    initialTags = [year, month]
+    return initialTags
+#--------------------------------------------------------------
 # MainPage handler
 #--------------------------------------------------------------
 class MainPage(BaseHandler):
@@ -26,22 +33,13 @@ class AddPageHandler(BaseHandler):
         if not user:
             return self.redirect("/")
 
-        year, month = datetime.datetime.now().strftime("%Y,%B").split(",")
-        initialTags = [year, month]
-
-        #Get Total for current month
-        expenses = Expense.getAllForUser(user)
-        passedExpenses = []
-        for expense in expenses:
-            if set(initialTags).issubset(set(expense.tags)):
-                passedExpenses.append(expense)
-        currentMonthSum = Expense.sumExpenses(passedExpenses)
+        initialTags = getCurrentMonthTags()
 
         # Render Add (Main) Page
         return self.render("new.html",
-            month = month,
-            year = year,
-        	totalAmount = currentMonthSum,
+            month = initialTags[1],
+            year = initialTags[0],
+        	totalAmount = user.getCurrentMonthTotal(),
             initialTags = initialTags,
         )
 
@@ -50,45 +48,33 @@ class AddPageHandler(BaseHandler):
         if not user:
             return self.redirect("/")
 
-        e = Expense()
-
         if not self.request.get("amount").isdigit():
             return
 
-        # Passed
-        e.userKey     = user.key
-        e.amount      = int(self.request.get("amount"))
-        e.category    = self.request.get("category")
-        e.description = self.request.get("description")
-        e.tags        = self.request.get("tagsInput").split(",")
+        # Passed - Create expense
+        e = Expense(userKey     = user.key,
+                    amount      = int(self.request.get("amount")),
+                    category    = self.request.get("category"),
+                    description = self.request.get("description"),
+                    tags        = self.request.get("tagsInput").split(","))
         e.put()
-
+        
         user.expenses.append(e.key)
         user.put()
 
+        # Update/Create Tags
         tags = self.request.get("tagsInput").split(",")
         for tag in tags:
-            t = Tag.query(ndb.AND(Tag.name==tag, Tag.userKey==user.key)).get()
-            if not t:
-                t = Tag(userKey=user.key, name=tag)
-            t.expenses.append(e.key)
-            t.put()
+            Tag.addToTag(tag, e)
+
+        # Clear the cache for this user (so cache refreshes)
+        user.clearCache()
 
         time.sleep(0.1)
 
-        year, month = datetime.datetime.now().strftime("%Y,%B").split(",")
-        initialTags = [year, month]
-
-        #Get Total for current month
-        expenses = Expense.getAllForUser(user)
-        passedExpenses = []
-        for expense in expenses:
-            if set(initialTags).issubset(set(expense.tags)):
-                passedExpenses.append(expense)
-        currentMonthSum = Expense.sumExpenses(passedExpenses)
-
+        # Set response
         info = {
-            'total': currentMonthSum,
+            'total': user.getCurrentMonthTotal(),
             'id': e.key.id(),
             'amount': e.amount,
             'category': e.category,
@@ -107,8 +93,8 @@ class HistoryPageHandler(BaseHandler):
             return self.redirect("/")
 
         return self.render("history.html",
-            totalSum = Expense.getTotalForUser(user),
-        	allExpenses = Expense.getAllForUser(user),
+            totalSum    = user.getTotal(),
+        	allExpenses = user.getAllExpenses(),
         )
 #--------------------------------------------------------------
 class JsonExpensesByTags(BaseHandler):
@@ -120,16 +106,12 @@ class JsonExpensesByTags(BaseHandler):
 
         tagNames = self.request.get("tagsInput")
 
-        expenses = Expense.getAllForUser(user)
-        passedExpenses = []
-
         if tagNames:
             tagNames = tagNames.split(",")
-            for expense in expenses:
-                if set(tagNames).issubset(set(expense.tags)):
-                    passedExpenses.append(expense)
+            passedExpenses = user.getExpensesByTags(tagNames)
         else:
-            passedExpenses = expenses
+            # Show all (No tags specified)
+            passedExpenses = user.getAllExpenses()
 
         info = []
         for e in passedExpenses:
@@ -155,6 +137,9 @@ class EditPageHandler(BaseHandler):
         expense_id = int(self.request.get("id"))
         e = Expense.get_by_id(expense_id)
 
+        if not e:
+            return self.redirect("/")
+
         return self.render("edit.html", e = e,)
 
     def post(self):
@@ -174,6 +159,9 @@ class EditPageHandler(BaseHandler):
         e.tags        = self.request.get("tagsInput").split(",")
         e.put()
         
+        # Clear the cache for this user (so cache refreshes)
+        user.clearCache()
+
         time.sleep(0.1)
 
         info = {
@@ -200,22 +188,17 @@ class RemoveHandler(BaseHandler):
         u.put()
         e.key.delete()
 
+        # Clear the cache for this user (so cache refreshes)
+        user.clearCache()
+
         time.sleep(0.1)
 
         year, month = datetime.datetime.now().strftime("%Y,%B").split(",")
         initialTags = [year, month]
 
-        #Get Total for current month
-        expenses = Expense.getAllForUser(user)
-        passedExpenses = []
-        for expense in expenses:
-            if set(initialTags).issubset(set(expense.tags)):
-                passedExpenses.append(expense)
-        currentMonthSum = Expense.sumExpenses(passedExpenses)
-
         info = {
             'message': 'success',
-            'total': currentMonthSum,
+            'total': user.getCurrentMonthTotal(),
             'id': self.request.get("id"),
         }
 
