@@ -24,20 +24,20 @@ $(document).ready(function() {
             url: "new",
             data: data,
             success: function(data) {
-              $("#totalSum").text(data['total']);
-              $("#last_id").text(data["id"]);
-              $("#last_description").text(data['description']);
-              $("#last_amount").text(data['amount']);
-              $("#last_category").text(data['category']);
-              $("#lastEntryDiv").hide().fadeIn(300);
+                
+                // Case: SUCCESS
+                $("#totalSum").text(data['total']);
+                $("#last_id").text(data["id"]);
+                var message = 'Added: ' + data['description'] + ' ' + data['amount'] + ' ' + data['category'];
+                var button  = '<a class="pull-right" id="undoButton">Undo</a>';
+                $("#addSuccess").html(message+button).fadeIn(300);
+                $("#undoButton").click(undoLastAdd);
             }
         });
     });
 
     // On Undo
-    $("#last_undo button").click(function(ev) {
-        ev.preventDefault();
-
+    function undoLastAdd() {
         data = "id="+$("#last_id").text();
 
         $.ajax({
@@ -45,14 +45,11 @@ $(document).ready(function() {
             url: "remove",
             data: data,
             success: function(data) {
-                $("#lastEntryDiv").fadeOut(300, function() {
+                $("#addSuccess").fadeOut(300, function() {
                     $("#totalSum").text(data['total']);
-                    $("#last_description").text("");
-                    $("#last_amount").text("");
-                    $("#last_category").text("");
                 });
             }
-        });
-    });
+        });      
+    }
 });
 

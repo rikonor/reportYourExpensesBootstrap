@@ -1,8 +1,10 @@
-#lastEntryDiv {
-    margin-top: 10px;
+#last_id {
     display: none;
 }
+a#undoButton {
+    cursor: pointer;
+}
 
-#last_id {
+#last_id, #addSuccess {
     display: none;
 }
