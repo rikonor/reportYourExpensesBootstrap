@@ -11,8 +11,7 @@ route_list = [
 	('/login', LoginPageHandler),
 	('/logout', LogoutPageHandler),
 	('/new', AddPageHandler),
-	('/history', HistoryPageHandler),
-	('/JsonExpensesByTags', JsonExpensesByTags),
+	('/locations', LocationsPageHandler),
 	('/edit', EditPageHandler),
 	('/remove', RemoveHandler),
 	]

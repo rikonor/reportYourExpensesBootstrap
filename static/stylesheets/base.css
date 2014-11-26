@@ -6,11 +6,3 @@ p[class^=bg-] {
     padding: 15px;
     border-radius: 6px;
 }
-
-a.tagButton {
-    cursor: pointer;
-}
-
-#totalSum {
-    border-bottom: 1px solid black;
-}

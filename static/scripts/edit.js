@@ -1,12 +1,9 @@
 $(document).ready(function() {
 
-    setInitialTags();
-
-    function setInitialTags() {
-        tags = $("#initialTags").find("span").each(function() {
-            $("#tagsInput").tagsinput('add', $(this).text());
-        });
-    }
+    $('.datepicker').pickadate({
+        editable: true,
+        formatSubmit: 'dd/mm/yyyy'
+    });
 
     // On Submit
     $("#editForm").submit(function(ev) {
@@ -18,13 +15,12 @@ $(document).ready(function() {
             url: $("#editForm").attr("action"),
             data: data,
             success: function(data) {
-                $("#amount").val(data["amount"]);
                 $("#category").val(data["category"]);
                 $("#description").val(data["description"]);
 
                 if (data["message"] == "success") {
                     $("#editSuccess").fadeIn(200);
-                    setTimeout(function() { window.location.replace("/history"); }, 3000);
+                    setTimeout(function() { window.location.replace("/locations"); }, 3000);
                 }
             }
         });
@@ -42,7 +38,7 @@ $(document).ready(function() {
             success: function(data) {
                 if (data["message"] == "success") {
                     $("#removeSuccess").fadeIn(200);
-                    setTimeout(function() { window.location.replace("/history"); }, 3000);
+                    setTimeout(function() { window.location.replace("/locations"); }, 3000);
                 }
             }
         });
